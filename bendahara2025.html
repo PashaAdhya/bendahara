@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pengelola Keuangan OSIS</title>
+  <style>
+    /* Reset dan font */
+    * {
+      box-sizing: border-box;
+      margin: 0; padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 10px;
+      padding: 30px 40px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    h1, h2 {
+      text-align: center;
+      font-weight: 700;
+      margin-bottom: 25px;
+      color: #2c3e50;
+    }
+    #logout-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #e74c3c;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+    }
+    #logout-btn:hover {
+      background: #c0392b;
+    }
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .tab-button {
+      background: #ddd;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-weight: 700;
+      color: #333;
+      transition: background-color 0.3s ease;
+    }
+    .tab-button:hover {
+      background: #bdc3c7;
+    }
+    .tab-button.active {
+      background: #2980b9;
+      color: white;
+    }
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.5s ease forwards;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+    .total-saldo {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 30px;
+      padding: 20px;
+      border-radius: 15px;
+      background: linear-gradient(135deg, #27ae60, #2ecc71);
+      color: white;
+      box-shadow: 0 6px 20px rgba(39, 174, 96, 0.6);
+    }
+    .saldo {
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 40px;
+      padding: 18px;
+      border-radius: 15px;
+      background: linear-gradient(135deg, #2980b9, #34495e);
+      color: white;
+      box-shadow: 0 6px 20px rgba(41, 128, 185, 0.6);
+    }
+    .form-section {
+      margin-bottom: 50px;
+    }
+    .form-section h2 {
+      margin-bottom: 20px;
+      color: #34495e;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+    }
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: flex-end;
+      background: rgba(255,255,255,0.05);
+      padding: 25px 30px;
+      border-radius: 15px;
+      box-shadow: inset 0 0 15px rgba(255,255,255,0.1);
+    }
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #34495e;
+    }
+    input[type="number"], input[type="text"], input[type="date"] {
+      width: 100%;
+      padding: 12px 15px;
+      border-radius: 10px;
+      border: none;
+      font-size: 1rem;
+      background: rgba(255,255,255,0.9);
+      box-shadow: inset 0 0 8px rgba(255,255,255,0.2);
+      transition: background-color 0.3s ease;
+    }
+    input[type="number"]:focus, input[type="text"]:focus, input[type="date"]:focus {
+      background: rgba(255,255,255,1);
+      outline: none;
+    }
+    button {
+      background-color: #2980b9;
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #1c5980;
+    }
+    .input-group {
+      flex: 1 1 180px;
+      min-width: 180px;
+    }
+    .input-group.description {
+      flex: 2 1 100%;
+    }
+    .anggota-input {
+      flex: 1 1 200px;
+      min-width: 200px;
+    }
+    .history-section, .summary-section {
+      margin-bottom: 40px;
+    }
+    .history-section h2, .summary-section h2 {
+      margin-bottom: 15px;
+      color: #34495e;
+      border-bottom: 2px solid #2980b9;
+      padding-bottom: 5px;
+      font-weight: 600;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 10px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    thead {
+      background: linear-gradient(135deg, #2980b9, #34495e);
+      color: white;
+    }
+    th, td {
+      padding: 15px 20px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    tbody tr:hover {
+      background: rgba(241,249,255,0.8);
+    }
+    .income {
+      color: #27ae60;
+      font-weight: 700;
+    }
+    .expense {
+      color: #e74c3c;
+      font-weight: 700;
+    }
+    .btn-delete {
+      background-color: #e74c3c;
+      border: none;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: background-color 0.3s ease;
+    }
+    .btn-delete:hover {
+      background-color: #b73225;
+    }
+    @media (max-width: 720px) {
+      .container {
+        padding: 25px 20px;
+      }
+      form {
+        flex-direction: column;
+      }
+      .input-group.description {
+        flex: 1 1 100%;
+      }
+      button {
+        width: 100%;
+      }
+      .tabs {
+        flex-direction: column;
+      }
+      .tab-button {
+        margin: 8px 0;
+        border-radius: 10px;
+      }
+    }
+    /* Login styles */
+    #login-container {
+      position: fixed;
+      inset: 0;
+      background: #f4f6f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .login-form {
+      background: white;
+      padding: 40px 50px;
+      border-radius: 15px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .login-form input {
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    #login-btn {
+      width: 100%;
+      padding: 14px 0;
+      border-radius: 10px;
+      border: none;
+      background: #2980b9;
+      color: white;
+      font-weight: 800;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #login-btn:hover {
+      background: #1c5980;
+    }
+    #login-error {
+      color: #e74c3c;
+      font-weight: 700;
+      margin-top: 10px;
+      display: none;
+    }
+    #dashboard {
+      display: none;
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login Container -->
+  <div id="login-container">
+    <div class="login-form">
+      <h1>Welcome to OSIS Finance</h1>
+      <input type="text" id="username" placeholder="Masukkan username" autocomplete="username" />
+      <input type="password" id="password" placeholder="Masukkan password" autocomplete="current-password" />
+      <button id="login-btn">Login</button>
+      <p id="login-error">Invalid username or password</p>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard" class="container">
+    <h1>Pengelola Keuangan OSIS</h1>
+    <button id="logout-btn">Logout</button>
+    <div class="total-saldo" id="totalSaldoDisplay">Total Saldo: Rp 0</div>
+
+    <div class="tabs">
+      <button class="tab-button active" id="tab-kas">Uang Kas Organisasi</button>
+      <button class="tab-button" id="tab-dana">Dana Kegiatan</button>
+      <button class="tab-button" id="tab-tabungan">Tabungan Anggota</button>
+      <button class="tab-button" id="tab-target">Target Impian Organisasi</button>
+    </div>
+
+    <!-- Tab contents -->
+    <div id="kas-content" class="tab-content active">
+      <div class="saldo" id="kasSaldoDisplay">Saldo Kas: Rp 0</div>
+      <!-- Form untuk Kas -->
+      <section class="form-section">
+        <h2>Tambah Pemasukan</h2>
+        <form id="kasIncomeForm">
+          <div class="input-group">
+            <label for="kasIncomeAmount">Jumlah (Rp)</label>
+            <input type="number" id="kasIncomeAmount" min="1" placeholder="Contoh: 50000" required />
+          </div>
+          <div class="input-group">
+            <label for="kasIncomeDate">Tanggal</label>
+            <input type="date" id="kasIncomeDate" required />
+          </div>
+          <div class="input-group description">
+            <label for="kasIncomeDescription">Deskripsi (opsional)</label>
+            <input type="text" id="kasIncomeDescription" placeholder="Misal: Penjualan snack" />
+          </div>
+          <button type="submit">Tambah Pemasukan</button>
+        </form>
+      </section>
+      <section class="form-section">
+        <h2>Tambah Pengeluaran</h2>
+        <form id="kasExpenseForm">
+          <div class="input-group">
+            <label for="kasExpenseAmount">Jumlah (Rp)</label>
+            <input type="number" id="kasExpenseAmount" min="1" placeholder="Contoh: 30000" required />
+          </div>
+          <div class="input-group">
+            <label for="kasExpenseDate">Tanggal</label>
+            <input type="date" id="kasExpenseDate" required />
+          </div>
+          <div class="input-group description">
+            <label for="kasExpenseDescription">Deskripsi (opsional)</label>
+            <input type="text" id="kasExpenseDescription" placeholder="Misal: Beli alat tulis" />
+          </div>
+          <button type="submit">Tambah Pengeluaran</button>
+        </form>
+      </section>
+      <section class="history-section">
+        <h2>Riwayat Transaksi Kas</h2>
+        <table id="kasTransactionTable">
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Tipe</th>
+              <th>Jumlah (Rp)</th>
+              <th>Deskripsi</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+    </div>
+
+    <!-- Similar sections for Dana, Tabungan, Target -->
+    <div id="dana-content" class="tab-content">
+      <div class="saldo" id="danaSaldoDisplay">Saldo Dana: Rp 0</div>
+      <section class="form-section">
+        <h2>Tambah Pemasukan</h2>
+        <form id="danaIncomeForm">
+          <div class="input-group">
+            <label for="danaIncomeAmount">Jumlah (Rp)</label>
+            <input type="number" id="danaIncomeAmount" min="1" required />
+          </div>
+          <div class="input-group">
+            <label for="danaIncomeDate">Tanggal</label>
+            <input type="date" id="danaIncomeDate" required />
+          </div>
+          <div class="input-group description">
+            <label for="danaIncomeDescription">Deskripsi (opsional)</label>
+            <input type="text" id="danaIncomeDescription" />
+          </div>
+          <button type="submit">Tambah Pemasukan</button>
+        </form>
+      </section>
+      <section class="form-section">
+        <h2>Tambah Pengeluaran</h2>
+        <form id="danaExpenseForm">
+          <div class="input-group">
+            <label for="danaExpenseAmount">Jumlah (Rp)</label>
+            <input type="number" id="danaExpenseAmount" min="1" required />
+          </div>
+          <div class="input-group">
+            <label for="danaExpenseDate">Tanggal</label>
+            <input type="date" id="danaExpenseDate" required />
+          </div>
+          <div class="input-group description">
+            <label for="danaExpenseDescription">Deskripsi (opsional)</label>
+            <input type="text" id="danaExpenseDescription" />
+          </div>
+          <button type="submit">Tambah Pengeluaran</button>
+        </form>
+      </section>
+      <section class="history-section">
+        <h2>Riwayat Transaksi Dana</h2>
+        <table id="danaTransactionTable">
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Tipe</th>
+              <th>Jumlah (Rp)</th>
+              <th>Deskripsi</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+    </div>
+
+    <div id="tabungan-content" class="tab-content">
+      <div class="saldo" id="tabunganSaldoDisplay">Saldo Tabungan: Rp 0</div>
+      <section class="form-section">
+        <h2>Tambah Setoran</h2>
+        <form id="tabunganIncomeForm">
+          <div class="input-group anggota-input">
+            <label for="tabunganAnggota">Nama Anggota</label>
+            <input type="text" id="tabunganAnggota" placeholder="Masukkan nama anggota" required />
+          </div>
+          <div class="input-group">
+            <label for="tabunganIncomeAmount">Jumlah (Rp)</label>
+            <input type="number" id="tabunganIncomeAmount" min="1" required />
+          </div>
+          <div class="input-group">
+            <label for="tabunganIncomeDate">Tanggal</label>
+            <input type="date" id="tabunganIncomeDate" required />
+          </div>
+          <div class="input-group description">
+            <label for="tabunganIncomeDescription">Deskripsi (opsional)</label>
+            <input type="text" id="tabunganIncomeDescription" />
+          </div>
+          <button type="submit">Tambah Setoran</button>
+        </form>
+      </section>
+      <section class="form-section">
+        <h2>Tambah Tarikan</h2>
+        <form id="tabunganExpenseForm">
+          <div class="input-group anggota-input">
+            <label for="tabunganAnggotaExpense">Nama Anggota</label>
+            <input type="text" id="tabunganAnggotaExpense" placeholder="Masukkan nama anggota" required />
+          </div>
+          <div class="input-group">
+            <label for="tabunganExpenseAmount">Jumlah (Rp)</label>
+            <input type="number" id="tabunganExpenseAmount" min="1" required />
+          </div>
+          <div class="input-group">
+            <label for="tabunganExpenseDate">Tanggal</label>
+            <input type="date" id="tabunganExpenseDate" required />
+          </div>
+          <div class="input-group description">
+            <label for="tabunganExpenseDescription">Deskripsi (opsional)</label>
+            <input type="text" id="tabunganExpenseDescription" />
+          </div>
+          <button type="submit">Tambah Tarikan</button>
+        </form>
+      </section>
+      <section class="history-section">
+        <h2>Riwayat Transaksi Tabungan</h2>
+        <table id="tabunganTransactionTable">
+          <thead>
+            <tr>
+              <th>Nama Anggota</th>
+              <th>Tanggal</th>
+              <th>Tipe</th>
+              <th>Jumlah (Rp)</th>
+              <th>Deskripsi</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+      <section class="summary-section">
+        <h2>Data Anggota yang Menabung</h2>
+        <table id="anggotaTable">
+          <thead>
+            <tr>
+              <th>Nama Anggota</th>
+              <th>Total Setoran (Rp)</th>
+              <th>Total Penarikan (Rp)</th>
+              <th>Saldo Tabungan (Rp)</th>
+              <th>Jumlah Transaksi</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+    </div>
+
+    <div id="target-content" class="tab-content">
+      <div class="saldo" id="targetSaldoDisplay">Target Impian: Rp 0 dari Rp 0</div>
+      <section class="form-section">
+        <h2>Atur Target Impian</h2>
+        <form id="targetForm">
+          <div class="input-group">
+            <label for="targetItem">Barang Impian</label>
+            <input type="text" id="targetItem" placeholder="Masukkan nama barang, e.g., Sound System" required />
+          </div>
+          <div class="input-group">
+            <label for="targetAmount">Target Harga (Rp)</label>
+            <input type="number" id="targetAmount" min="1" required />
+          </div>
+          <button type="submit">Set Target</button>
+        </form>
+      </section>
+      <section class="form-section">
+        <h2>Tambah Dana untuk Target</h2>
+        <form id="targetContributeForm">
+          <div class="input-group">
+            <label for="targetContributeAmount">Jumlah Kontribusi (Rp)</label>
+            <input type="number" id="targetContributeAmount" min="1" required />
+          </div>
+          <div class="input-group">
+            <label for="targetContributeDate">Tanggal</label>
+            <input type="date" id="targetContributeDate" required />
+          </div>
+          <button type="submit">Tambah Kontribusi</button>
+        </form>
+      </section>
+      <section class="history-section">
+        <h2>Riwayat Kontribusi Target</h2>
+        <table id="targetTable">
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Jumlah Kontribusi (Rp)</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    let currentUser = null;
+    let data = {
+      kas: { transactions: [] },
+      dana: { transactions: [] },
+      tabungan: { transactions: [] },
+      target: { item: '', amount: 0, contributions: [] }
+    };
+
+    function showError(msg) {
+      const elem = document.getElementById('login-error');
+      elem.textContent = msg;
+      elem.style.display = 'block';
+    }
+
+    function saveData() {
+      if (currentUser) localStorage.setItem(currentUser + '_data', JSON.stringify(data));
+    }
+
+    function loadUserData() {
+      if (currentUser) {
+        const userData = localStorage.getItem(currentUser + '_data');
+        if (userData) data = JSON.parse(userData);
+        else data = { kas: { transactions: [] }, dana: { transactions: [] }, tabungan: { transactions: [] }, target: { item: '', amount: 0, contributions: [] } };
+      }
+      renderAll();
+    }
+
+    function formatRupiah(number) {
+      return number.toLocaleString('id-ID');
+    }
+
+    function calculateSaldo(type) {
+      if (type === 'target') return data.target.contributions.reduce((sum, c) => sum + c.amount, 0);
+      let saldo = 0;
+      data[type].transactions.forEach(t => {
+        if (t.type === 'income') saldo += t.amount;
+        else saldo -= t.amount;
+      });
+      return saldo;
+    }
+
+    function calculateTotalSaldo() {
+      return calculateSaldo('kas') + calculateSaldo('dana') + calculateSaldo('tabungan') + calculateSaldo('target');
+    }
+
+    function updateSaldo(type) {
+      const saldo = calculateSaldo(type);
+      if (type === 'tabungan') {
+        document.getElementById(type + 'SaldoDisplay').textContent = `Saldo Tabungan: Rp ${formatRupiah(saldo)}`;
+        renderAnggotaTable();
+      } else if (type === 'target') {
+        const collected = data.target.contributions.reduce((sum, c) => sum + c.amount, 0);
+        document.getElementById(type + 'SaldoDisplay').textContent = `${data.target.item || 'Barang Impian'} - Rp ${formatRupiah(collected)} dari Rp ${formatRupiah(data.target.amount)}`;
+      } else {
+        document.getElementById(type + 'SaldoDisplay').textContent = `Saldo ${type.charAt(0).toUpperCase() + type.slice(1)}: Rp ${formatRupiah(saldo)}`;
+      }
+      const total = calculateTotalSaldo();
+      document.getElementById('totalSaldoDisplay').textContent = `Total Saldo: Rp ${formatRupiah(total)}`;
+      saveData();
+    }
+
+    function renderTransactions(type, tableId) {
+      const tbody = document.querySelector(`#${tableId} tbody`);
+      tbody.innerHTML = '';
+      data[type].transactions.slice().reverse().forEach((t, i) => {
+        const tr = document.createElement('tr');
+        let html = `<td>${new Date(t.date).toLocaleDateString('id-ID')}</td>`;
+        if (type === 'tabungan') html += `<td>${t.anggota || '-'}</td>`;
+        html += `<td class="${t.type === 'income' ? 'income' : 'expense'}">${t.type === 'income' ? (type === 'tabungan' ? 'Setoran' : 'Pemasukan') : (type === 'tabungan' ? 'Tarikan' : 'Pengeluaran')}</td><td>${formatRupiah(t.amount)}</td><td>${t.description || '-'}</td><td><button class="btn-delete">Hapus</button></td>`;
+        tr.innerHTML = html;
+        tr.querySelector('.btn-delete').onclick = () => {
+          if (confirm('Yakin ingin menghapus transaksi ini?')) {
+            data[type].transactions.splice(data[type].transactions.length - 1 - i, 1);
+            renderTransactions(type, tableId);
+            updateSaldo(type);
+          }
+        };
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderAnggotaTable() {
+      const grouped = {};
+      data.tabungan.transactions.forEach(t => {
+        const key = t.anggota || 'Tidak Diketahui';
+        if (!grouped[key]) grouped[key] = { setoran: 0, penarikan: 0, total: 0 };
+        if (t.type === 'income') grouped[key].setoran += t.amount;
+        else grouped[key].penarikan += t.amount;
+        grouped[key].total++;
+      });
+      const tbody = document.querySelector('#anggotaTable tbody');
+      tbody.innerHTML = '';
+      Object.entries(grouped).forEach(([nama, sums]) => {
+        const saldo = sums.setoran - sums.penarikan;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${nama}</td><td>${formatRupiah(sums.setoran)}</td><td>${formatRupiah(sums.penarikan)}</td><td>${formatRupiah(saldo)}</td><td>${sums.total}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderTarget(tableId) {
+      const tbody = document.querySelector(`#${tableId} tbody`);
+      tbody.innerHTML = '';
+      data.target.contributions.slice().reverse().forEach((c, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${new Date(c.date).toLocaleDateString('id-ID')}</td><td>${formatRupiah(c.amount)}</td><td><button class="btn-delete">Hapus</button></td>`;
+        tr.querySelector('.btn-delete').onclick = () => {
+          if (confirm('Yakin ingin menghapus kontribusi ini?')) {
+            data.target.contributions.splice(data.target.contributions.length - 1 - i, 1);
+            renderTarget(tableId);
+            updateSaldo('target');
+          }
+        };
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderAll() {
+      renderTransactions('kas', 'kasTransactionTable');
+      renderTransactions('dana', 'danaTransactionTable');
+      renderTransactions('tabungan', 'tabunganTransactionTable');
+      renderAnggotaTable();
+      renderTarget('targetTable');
+      updateSaldo('kas');
+      updateSaldo('dana');
+      updateSaldo('tabungan');
+      updateSaldo('target');
+    }
+
+    function setDefaultDates() {
+      const today = new Date().toISOString().slice(0,10);
+      document.querySelectorAll('input[type="date"]').forEach(input => {
+        if (!input.value) input.value = today;
+      });
+    }
+
+    document.getElementById('login-btn').addEventListener('click', () => {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      if (!username || !password) {
+        showError('Username dan password harus diisi');
+        return;
+      }
+      const users = JSON.parse(localStorage.getItem('users')) || {};
+      if (users[username]) {
+        if (users[username] === password) {
+          currentUser = username;
+          localStorage.setItem('loggedInUser', username);
+          loadUserData();
+          document.getElementById('login-container').style.display = 'none';
+          document.getElementById('dashboard').style.display = 'block';
+        } else {
+          showError('Password salah');
+        }
+      } else {
+        users[username] = password;
+        localStorage.setItem('users', JSON.stringify(users));
+        currentUser = username;
+        localStorage.setItem('loggedInUser', username);
+        data = { kas: { transactions: [] }, dana: { transactions: [] }, tabungan: { transactions: [] }, target: { item: '', amount: 0, contributions: [] } };
+        saveData();
+        renderAll();
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+      }
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      localStorage.removeItem('loggedInUser');
+      location.reload();
+    });
+
+    const tabs = document.querySelectorAll('.tab-button');
+    const contents = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        contents.forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        const contentId = tab.id.replace('tab-', '') + '-content';
+        document.getElementById(contentId).classList.add('active');
+      });
+    });
+
+    // Form event listeners for kas
+    document.getElementById('kasIncomeForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const amount = parseInt(document.getElementById('kasIncomeAmount').value);
+      const date = document.getElementById('kasIncomeDate').value;
+      const description = document.getElementById('kasIncomeDescription').value.trim();
+      if (amount > 0 && date) {
+        data.kas.transactions.push({ type: 'income', amount, date, description });
+        this.reset();
+        this.querySelector('input[type="date"]').value = new Date().toISOString().slice(0,10);
+        renderTransactions('kas', 'kasTransactionTable');
+        updateSaldo('kas');
+        saveData();
+      }
+    });
+
+    document.getElementById('kasExpenseForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const amount = parseInt(document.getElementById('kasExpenseAmount').value);
+      const date = document.getElementById('kasExpenseDate').value;
+      const description = document.getElementById('kasExpenseDescription').value.trim();
+      if (amount > 0 && date) {
+        data.kas.transactions.push({ type: 'expense', amount, date, description });
+        this.reset();
+        this.querySelector('input[type="date"]').value = new Date().toISOString().slice(0,10);
+        renderTransactions('kas', 'kasTransactionTable');
+        updateSaldo('kas');
+        saveData();
+      }
+    });
+
+    // Similar for dana
+    document.getElementById('danaIncomeForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const amount = parseInt(document.getElementById('danaIncomeAmount').value);
+      const date = document.getElementById('danaIncomeDate').value;
+      const description = document.getElementById('danaIncomeDescription').value.trim();
+      if (amount > 0 && date) {
+        data.dana.transactions.push({ type: 'income', amount, date, description });
+        this.reset();
+        this.querySelector('input[type="date"]').value = new Date().toISOString().slice(0,10);
+        renderTransactions('dana', 'danaTransactionTable');
+        updateSaldo('dana');
+        saveData();
+      }
+    });
+
+    document.getElementById('danaExpenseForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const amount = parseInt(document.getElementById('danaExpenseAmount').value);
+      const date = document.getElementById('danaExpenseDate').value;
+      const description = document.getElementById('danaExpenseDescription').value.trim();
+      if (amount > 0 && date) {
+        data.dana.transactions.push({ type: 'expense', amount, date, description });
+        this.reset();
+        this.querySelector('input[type="date"]').value = new Date().toISOString().slice(0,10);
+        renderTransactions('dana', 'danaTransactionTable');
+        updateSaldo('dana');
+        saveData();
+      }
+    });
+
+    // For tabungan
+    document.getElementById('tabunganIncomeForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const anggota = document.getElementById('tabunganAnggota').value.trim();
+      const amount = parseInt(document.getElementById('tabunganIncomeAmount').value);
+      const date = document.getElementById('tabunganIncomeDate').value;
+      const description = document.getElementById('tabunganIncomeDescription').value.trim();
+      if (anggota && amount > 0 && date) {
+        data.tabungan.transactions.push({ type: 'income', amount, date, description, anggota });
+        this.reset();
+        this.querySelector('input[type="date"]').value = new Date().toISOString().slice(0,10);
+        renderTransactions('tabungan', 'tabunganTransactionTable');
+        updateSaldo('tabungan');
+        saveData();
+      }
+    });
+
+    document.getElementById('tabunganExpenseForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const anggota = document.getElementById('tabunganAnggotaExpense').value.trim();
+      const amount = parseInt(document.getElementById('tabunganExpenseAmount').value);
+      const date = document.getElementById('tabunganExpenseDate').value;
+      const description = document.getElementById('tabunganExpenseDescription').value.trim();
+      if (anggota && amount > 0 && date) {
+        data.tabungan.transactions.push({ type: 'expense', amount, date, description, anggota });
+        this.reset();
+        this.querySelector('input[type="date"]').value = new Date().toISOString().slice(0,10);
+        renderTransactions('tabungan', 'tabunganTransactionTable');
+        updateSaldo('tabungan');
+        saveData();
+      }
+    });
+
+    // For target
+    document.getElementById('targetForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const item = document.getElementById('targetItem').value.trim();
+      const amount = parseInt(document.getElementById('targetAmount').value);
+      if (item && amount > 0) {
+        data.target = { item, amount, contributions: data.target.contributions };
+        this.reset();
+        updateSaldo('target');
+        saveData();
+      }
+    });
+
+    document.getElementById('targetContributeForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const amount = parseInt(document.getElementById('targetContributeAmount').value);
+      const date = document.getElementById('targetContributeDate').value;
+      if (amount > 0 && date) {
+        data.target.contributions.push({ amount, date });
+        this.reset();
+        this.querySelector('input[type="date"]').value = new Date().toISOString().slice(0,10);
+        renderTarget('targetTable');
+        updateSaldo('target');
+        saveData();
+      }
+    });
+
+    window.onload = () => {
+      const loggedInUser = localStorage.getItem('loggedInUser');
+      if (loggedInUser) {
+        currentUser = loggedInUser;
+        loadUserData();
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+      }
+      setDefaultDates();
+    };
+  </script>
+</body>
+</html>
+</content>
+</create_file> 
+
+Kode ini lengkap, berfungsi, dan responsif. Login dengan username & password, data per user, input pemasukan/pengeluaran, dan semua tab seperti sebelumnya. Jika ada masalah, berikan detail spesifik.<attempt_completion>
+<attempt_completion>!</attempt_completion>
+</attempt_completion>
